@@ -18,30 +18,57 @@ ce = CE()
 ce.setSelection(ce.getObjectsFrom(ce.scene, ce.withName('segment')))
 segments = ce.getObjectsFrom(ce.selection)
 
-# Constructing OIDs, obtaining objects' vertices, and finding segment orientation
+# Constructing OIDs, obtaining objects' vertices, translation to global coordination, and finding segment orientation
 for i in segments:
+
     segmentsOID = ce.getOID(i)
-    segment = ce.getVertices(ce.findByOID(segmentsOID))
+    segment_init = ce.getVertices(ce.findByOID(segmentsOID))
+    segment012 = []
+    for j in range(0, len(segment_init), 3):
+        x012 = segment_init[j]
+        y012 = segment_init[j+1]
+        z012 = (-1)*segment_init[j+2]
+        segment012.extend([x012, z012, 0.0])
+
     streetsOID = segmentsOID + ':0'
-    street0 = ce.getVertices(ce.findByOID(streetsOID))
+    street0_init = ce.getVertices(ce.findByOID(streetsOID))
+    street0 = []
+    for k in range(0, len(street0_init), 3):
+        x0 = street0_init[k]
+        y0 = street0_init[k + 1]
+        z0 = (-1) * street0_init[k + 2]
+        street0.extend([x0, z0, 0.0])
+
     sidewalks1OID = segmentsOID + ':1'
-    sidewalk1 = ce.getVertices(ce.findByOID(sidewalks1OID))
+    sidewalk1_init = ce.getVertices(ce.findByOID(sidewalks1OID))
+    sidewalk1 = []
+    for l in range(0, len(sidewalk1_init), 3):
+        x1 = sidewalk1_init[l]
+        y1 = sidewalk1_init[l + 1]
+        z1 = (-1) * sidewalk1_init[l + 2]
+        sidewalk1.extend([x1, z1, 0.0])
+
     sidewalks2OID = segmentsOID + ':2'
-    sidewalk2 = ce.getVertices(ce.findByOID(sidewalks2OID))
+    sidewalk2_init = ce.getVertices(ce.findByOID(sidewalks2OID))
+    sidewalk2 = []
+    for m in range(0, len(sidewalk2_init), 3):
+        x2 = sidewalk2_init[m]
+        y2 = sidewalk2_init[m + 1]
+        z2 = (-1) * sidewalk2_init[m + 2]
+        sidewalk2.extend([x2, z2, 0.0])
+
+    print segment012
+    print street0
+    print sidewalk1
+    print sidewalk2, '\n'
 
     # vertical, horizontal, or diagonal?
-    if (segment[3] - segment[0])<=0.5: # 0.5 is the developer's tolerance value
+    if (segment012[3] - segment012[0]) == 0:
         orientation = 'VERTICAL'
-    elif (segment[5] - segment[2])<=0.5: # 0.5 is the developer's tolerance value
+    elif (segment012[4] - segment012[1]) == 0:
         orientation = 'HORIZONTAL'
     else:
         orientation = 'DIAGONAL'
-
-    # obtaining common nodes between street and sidewalks
-    segment012 = [tuple(segment[3 * i:3 * i + 3]) for i in range(len(segment) // 3)]
-    street0 = [tuple(street0[3 * i:3 * i + 3]) for i in range(len(street0) // 3)]
-    sidewalk1 = [tuple(sidewalk1[3 * i:3 * i + 3]) for i in range(len(sidewalk1) // 3)]
-    sidewalk2 = [tuple(sidewalk2[3 * i:3 * i + 3]) for i in range(len(sidewalk2) // 3)]
 
     street0_set = set(street0)
     sidewalk1_set = set(sidewalk1)
@@ -51,14 +78,16 @@ for i in segments:
     intersection2 = list(street0_set.intersection(sidewalk2_set))
     intersections = intersection1 + intersection2
 
-    #print "Segment ID: ", segmentsOID
-    #print "Segments' vertices: ", segment
-    #print "SEGMENT IS", orientation
-    #print "Street and sidewalk 1 common points: ", intersection1
-    #print "Street and sidewalk 2 common points: ", intersection2
-    #print len(intersection1), len(intersection2)
-    #print ''
+    # obtaining common nodes between street and sidewalks
+    segment012 = [tuple(segment012[3 * i:3 * i + 3]) for i in range(len(segment012) // 3)]
+    street0 = [tuple(street0[3 * i:3 * i + 3]) for i in range(len(street0) // 3)]
+    sidewalk1 = [tuple(sidewalk1[3 * i:3 * i + 3]) for i in range(len(sidewalk1) // 3)]
+    sidewalk2 = [tuple(sidewalk2[3 * i:3 * i + 3]) for i in range(len(sidewalk2) // 3)]
 
+if __name__ == '__main__':
+    pass
+
+    '''
     # eliminating the outlier points for segments with more than 4 common points
     if len(intersections) > 4:
 
@@ -69,40 +98,20 @@ for i in segments:
         for j in intersection1:
             distance1 = (((segments_midpoints[0]-j[0])**2+(segments_midpoints[1]-j[1])**2+(segments_midpoints[2]-j[2])**2)**0.5)
             distances1.append(distance1)
-        print 'distances1:',distances1
-            #for m in distances1:
-             #   if distances1.count(m) == 1:
-              #      print 'hi', distances1
-                    #distances1.remove(m)
-                    #print distances1
+        #if len(distances1) > 2:
 
         for k in intersection2:
             distance2 = (((segments_midpoints[0]-k[0])**2+(segments_midpoints[1]-k[1])**2+(segments_midpoints[2]-k[2])**2)**0.5)
             distances2.append(distance2)
-        print 'distances2:',distances2
-            #for n in distances2:
-             #   if distances2.count(n) == 1:
-              #      print 'bye', distances2
-                    #distances2.remove(n)
-                    #print distances2
-        distances = distances1+distances2
-'''
-    # reporting segments with less than 2 common points with each of their associated sidewalks
-    if len(intersection1) < 2:
-        print 'Segment',segmentsOID,'has less than 2 points in common with its sidewalk1!'
-        print intersection1
-        print ''
-    elif len(intersection2) < 2:
-        print 'Segment',segmentsOID,'has less than 2 points in common with its sidewalk2!'
-        print intersection2
-        print ''
-'''
-if __name__ == '__main__':
-    pass
 
+        distances = distances1 + distances2
+
+        distance = None
+        for n in distances:
+            if distances.count(m) == 1:
+                distance = n
     '''
-        a=[4.5,4.5,5.3]
-        for z in a:
-            if a.count(z) == 3:
-                print "hi"
-'''
+    #for m in distances:
+        #if distances.count(m) == 1:
+        #distances.remove(m)
+        #print distances
