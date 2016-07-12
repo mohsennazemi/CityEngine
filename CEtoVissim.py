@@ -21,7 +21,6 @@ ce.setSelection(ce.getObjectsFrom(ce.scene, ce.withName('segment')))
 segments = ce.getObjectsFrom(ce.selection)
 
 # Constructing OIDs, obtaining objects' vertices, and translation to global coordination
-ii = 0
 for i in segments:
 
     segmentsOID = ce.getOID(i)
@@ -75,7 +74,7 @@ for i in segments:
     intersection2 = list(street0_set.intersection(sidewalk2_set))
     intersections = intersection1 + intersection2
 
-    # finding streets' start/end points by averaging pedestrian-street common points
+    # finding streets' mid-points by averaging pedestrian-street common points
     if len(intersection1) == 2 and len(intersection2) == 2:
 
         if (intersection1[0][0] + intersection1[0][1]) < (intersection1[1][0] + intersection1[1][1]):
@@ -92,22 +91,14 @@ for i in segments:
             min_inter2 = [intersection2[1][0] , intersection2[1][1]]
             max_inter2 = [intersection2[0][0] , intersection2[0][1]]
     else:
-        print 'No exact 4 points for street ID "', streetsOID, '"'
+        print 'No exact 4 points for street ID "', streetsOID, '"', '\n'
 
     start = [(min_inter1[0] + min_inter2[0]) / 2, (min_inter1[1] + min_inter2[1]) / 2]
     end = [(max_inter1[0] + max_inter2[0]) / 2, (max_inter1[1] + max_inter2[1]) / 2]
 
-    street_width_start = math.sqrt((min_inter1[0] - min_inter2[0]) ** 2 + (min_inter1[1] - min_inter2[1]) ** 2)
-    street_width_end = math.sqrt((max_inter1[0] - max_inter2[0]) ** 2 + (max_inter1[1] - max_inter2[1]) ** 2)
-
-    # Vissim input generator
-    print "LinksEnter[", ii, "] = Vissim.Net.Links.AddLink(0,", "'LINESTRING(", round(start[0], 1), round(start[1], 1), ",", round(end[0], 1), round(end[1], 1), ")',", "[3.5])"
-    ii += 1
-    #print 'segment ID:', '"', streetsOID, '"'
-    #print 'start:', start
-    #print 'end:', end, '\n'
-    #print street_width_start
-    #print street_width_end, '\n'
+    print 'segment ID:', '"', streetsOID, '"'
+    print 'start:', start
+    print 'end:', end, '\n'
 
 if __name__ == '__main__':
     pass
